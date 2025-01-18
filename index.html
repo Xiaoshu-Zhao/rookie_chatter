@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/styles/github.min.css">
     <style>
         .chat-container {
-            height: calc(100vh - 160px);
+            height: calc(100vh - 280px);
             overflow-y: auto;
         }
         .user-message {
@@ -97,17 +97,136 @@
         .copy-button:hover {
             background-color: #d1d5db;
         }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 1.5rem 1rem;
+            max-width: 1024px;
+            margin: 0 auto;
+        }
+        .input-container {
+            margin-top: auto;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1rem;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        body {
+            background: linear-gradient(135deg, #f6f8fc 0%, #f0f4f8 100%);
+        }
+        .title-container {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+        .title-container h1 {
+            font-size: 2.5rem;
+            color: #1a365d;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+        .title-container p {
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            backdrop-filter: blur(10px);
+            transition: box-shadow 0.3s ease;
+        }
+        .user-message {
+            background-color: #f8fafc;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+            transition: transform 0.2s ease;
+        }
+        .assistant-message {
+            background-color: white;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0;
+            transition: transform 0.2s ease;
+        }
+        .avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        #user-input {
+            border-radius: 0.75rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+        }
+        #user-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        #send-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+        #send-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        }
+        .markdown-body pre {
+            background: #f8fafc;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .copy-button {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            color: #4a5568;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .copy-button:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message-animation {
+            animation: fadeIn 0.3s ease-out;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
-    <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="container mx-auto px-4 max-w-4xl main-container">
+        <div class="title-container">
+            <h1>Rookie Chatter</h1>
+            <p>Your AI Programming Assistant</p>
+        </div>
         <div class="chat-container rounded-lg border border-gray-200 bg-white mb-4">
             <div id="chat-messages" class="divide-y divide-gray-200">
                 <!-- Messages will be inserted here -->
             </div>
         </div>
         
-        <div class="flex gap-2">
+        <div class="flex gap-2 input-container">
             <div class="flex-grow relative">
                 <textarea id="user-input" 
                     class="w-full p-3 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 resize-none"
@@ -216,7 +335,7 @@
             messageDiv.innerHTML = `
                 <div class="flex items-start">
                     <div class="flex-shrink-0 mr-4">
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                        <div class="avatar">
                             <i class="fas ${iconClass}"></i>
                         </div>
                     </div>
