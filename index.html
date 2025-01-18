@@ -13,10 +13,10 @@
             overflow-y: auto;
         }
         .user-message {
-            background-color: #f7f7f8;
+            background-color: #EBF8FF;
         }
         .assistant-message {
-            background-color: white;
+            background-color: #F7FAFC;
         }
         .typing-indicator::after {
             content: '...';
@@ -212,6 +212,19 @@
         .message-animation {
             animation: fadeIn 0.3s ease-out;
         }
+        .user-message .message-content {
+            flex-direction: row-reverse;
+        }
+        .user-message .avatar {
+            margin-left: 1rem;
+            margin-right: 0;
+            background: linear-gradient(135deg, #4299E1 0%, #3182CE 100%);
+            color: white;
+        }
+        .assistant-message .avatar {
+            background: linear-gradient(135deg, #9F7AEA 0%, #805AD5 100%);
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -321,7 +334,7 @@
         function appendMessage(content, isUser) {
             const messagesDiv = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
-            messageDiv.className = `p-6 ${isUser ? 'user-message' : 'assistant-message'}`;
+            messageDiv.className = `p-6 ${isUser ? 'user-message' : 'assistant-message'} message-animation`;
             
             // 将消息添加到历史记录中
             messageHistory.push({
@@ -333,15 +346,15 @@
             const roleText = isUser ? 'You' : 'Assistant';
             
             messageDiv.innerHTML = `
-                <div class="flex items-start">
-                    <div class="flex-shrink-0 mr-4">
+                <div class="flex items-start message-content">
+                    <div class="flex-shrink-0 ${isUser ? 'ml-4' : 'mr-4'}">
                         <div class="avatar">
-                            <i class="fas ${iconClass}"></i>
+                            <i class="fas ${iconClass} text-lg"></i>
                         </div>
                     </div>
-                    <div class="flex-grow">
+                    <div class="flex-grow ${isUser ? 'text-right' : ''}">
                         <div class="font-semibold mb-1">${roleText}</div>
-                        <div class="text-gray-700 whitespace-pre-wrap markdown-body">${marked.parse(content)}</div>
+                        <div class="text-gray-700 whitespace-pre-wrap markdown-body ${isUser ? 'ml-auto' : ''}">${marked.parse(content)}</div>
                     </div>
                 </div>
             `;
@@ -356,10 +369,10 @@
             indicatorDiv.id = 'typing-indicator';
             indicatorDiv.className = 'p-6 assistant-message';
             indicatorDiv.innerHTML = `
-                <div class="flex items-start">
+                <div class="flex items-start message-content">
                     <div class="flex-shrink-0 mr-4">
-                        <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                            <i class="fas fa-robot"></i>
+                        <div class="avatar">
+                            <i class="fas fa-robot text-lg"></i>
                         </div>
                     </div>
                     <div class="flex-grow">
