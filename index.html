@@ -47,6 +47,7 @@
             border-radius: 8px;
             overflow-x: auto;
             margin: 1em 0;
+            position: relative;
         }
         .markdown-body h1, .markdown-body h2, .markdown-body h3,
         .markdown-body h4, .markdown-body h5, .markdown-body h6 {
@@ -76,6 +77,25 @@
         }
         .markdown-body table th {
             background: #f9fafb;
+        }
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background-color: #e5e7eb;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .markdown-body pre:hover .copy-button {
+            opacity: 1;
+        }
+        .copy-button:hover {
+            background-color: #d1d5db;
         }
     </style>
 </head>
@@ -109,20 +129,70 @@
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/json.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/xml.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/css.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/markdown.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/sql.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/yaml.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/typescript.min.js"></script>
 
     <script>
-        // 配置 marked
-        marked.setOptions({
-            highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    return hljs.highlight(code, { language: lang }).value;
+        // 等待所有脚本加载完成
+        window.onload = function() {
+            // 添加复制功能
+            function addCopyButtons() {
+                document.querySelectorAll('pre code').forEach((codeBlock, index) => {
+                    const container = codeBlock.parentNode;
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-button';
+                    copyButton.textContent = '复制';
+                    
+                    copyButton.addEventListener('click', async () => {
+                        try {
+                            await navigator.clipboard.writeText(codeBlock.textContent);
+                            copyButton.textContent = '已复制!';
+                            setTimeout(() => {
+                                copyButton.textContent = '复制';
+                            }, 2000);
+                        } catch (err) {
+                            console.error('复制失败:', err);
+                            copyButton.textContent = '复制失败';
+                        }
+                    });
+                    
+                    // 只有当容器还没有复制按钮时才添加
+                    if (!container.querySelector('.copy-button')) {
+                        container.appendChild(copyButton);
+                    }
+                });
+            }
+
+            // 配置 marked
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    try {
+                        if (lang && hljs.getLanguage(lang)) {
+                            return hljs.highlight(code, { language: lang }).value;
+                        }
+                        return hljs.highlightAuto(code).value;
+                    } catch (e) {
+                        console.warn('Highlight error:', e);
+                        return code;
+                    }
+                },
+                breaks: true,
+                gfm: true
+            });
+
+            // 修改 appendMessage 函数
+            const originalAppendMessage = window.appendMessage;
+            window.appendMessage = function(content, isUser) {
+                originalAppendMessage(content, isUser);
+                if (!isUser) {
+                    // 为新添加的消息添加复制按钮
+                    setTimeout(addCopyButtons, 100);
                 }
-                return hljs.highlightAuto(code).value;
-            },
-            breaks: true,
-            gfm: true
-        });
-        
+            };
+        };
+
         const API_KEY = 'sk-81db61ea9dd743f4be7f368388d00ee2';
         const API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
         
@@ -207,7 +277,7 @@
                         role: 'system',
                         content: 'You are a helpful assistant.'
                     },
-                    ...messageHistory.slice(-10) // 只保留最近的10条消息
+                    ...messageHistory
                 ];
 
                 const response = await fetch(API_URL, {
