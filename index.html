@@ -125,11 +125,20 @@
         
         const API_KEY = 'sk-81db61ea9dd743f4be7f368388d00ee2';
         const API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+        
+        // 添加一个数组来存储对话历史
+        let messageHistory = [];
 
         function appendMessage(content, isUser) {
             const messagesDiv = document.getElementById('chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `p-6 ${isUser ? 'user-message' : 'assistant-message'}`;
+            
+            // 将消息添加到历史记录中
+            messageHistory.push({
+                role: isUser ? 'user' : 'assistant',
+                content: content
+            });
             
             const iconClass = isUser ? 'fa-user' : 'fa-robot';
             const roleText = isUser ? 'You' : 'Assistant';
@@ -187,16 +196,20 @@
             
             if (!message) return;
             
-            // Clear input
             input.value = '';
-            
-            // Add user message to chat
             appendMessage(message, true);
-            
-            // Show typing indicator
             appendTypingIndicator();
             
             try {
+                // 构建包含历史消息的请求
+                const messages = [
+                    {
+                        role: 'system',
+                        content: 'You are a helpful assistant.'
+                    },
+                    ...messageHistory.slice(-10) // 只保留最近的10条消息
+                ];
+
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
@@ -205,16 +218,7 @@
                     },
                     body: JSON.stringify({
                         model: 'qwen-plus',
-                        messages: [
-                            {
-                                role: 'system',
-                                content: 'You are a helpful assistant.'
-                            },
-                            {
-                                role: 'user',
-                                content: message
-                            }
-                        ]
+                        messages: messages
                     })
                 });
 
